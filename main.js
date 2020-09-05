@@ -6,12 +6,16 @@ const {app, BrowserWindow, ipcMain} = electron;
 // Developer Dependencies.
 const isDev = !app.isPackaged;
 if (isDev) {
-  require("electron-debug")();
+  require('electron-debug')();
 }
 
 // Additional Tooling.
 const path = require('path');
 const url = require('url');
+const fs = require('fs');
+
+// Yaml parser
+const yaml = require('yaml');
 
 // Get rid of the deprecated default.
 app.allowRendererProcessReuse = true;
@@ -115,9 +119,13 @@ app.on('activate', () => {
  * Example IPC message handler.
  */
 ipcMain.on('sample_message', (event, args) => {
+  const file = fs.readFileSync('./sample_data/pets.yml', 'utf8');
+  const data = yaml.parse(file);
+
   // Sample useless response.
   mainWindow.webContents.send('sample_response', {
     message: 'Interface sent a message to main: ' + args.message_content,
+    yaml: data,
   });
   return true;
 });

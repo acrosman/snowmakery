@@ -14,11 +14,16 @@
   ],
   "scripts": {
     "start": "electron .",
-    "lint": "eslint --ignore-path .gitignore src",
+    "lint": "eslint --ignore-path .gitignore",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
+    "bootstrap": "^4.5.2",
+    "bootswatch": "^4.5.2",
     "electron": "^9.2.0",
+    "jquery": "^3.5.1",
+    "jquery.json-viewer": "^1.4.0",
+    "popper.js": "^1.16.1",
     "yaml": "^1.10.0"
   },
   "devDependencies": {
