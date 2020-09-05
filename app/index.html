@@ -1,11 +1,40 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com">
+        <link rel="stylesheet" href="../node_modules/bootswatch/dist/cyborg/bootstrap.min.css">
+        <link rel="stylesheet" href="../node_modules/json-formatter-js/dist/json-formatter.css">
     </head>
     <body>
-        <h1>Electron Project Template</h1>
-        <p>We got you this far.  You're on your own from here.</p>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <form role="form" class="form-inline">
+                        <div class="form-group">
+                            <label for="existingYmlFile">
+                                Select Your Snowfakery Yaml File:
+                            </label>
+                            <input type="file" class="form-control-file" id="existingYmlFile" />
+                            <p class="help-block">If you don't have one try one of the sample files included with this program.</p>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Load Config</button>
+                    </form>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-8" id="editor-wrapper">
+                </div>
+                <div class="col-md-4">
+                    <div id="raw-data"></div>
+                </div>
+            </div>
+        </div>
+        <script src="../node_modules/popper.js/dist/umd/popper.js"></script>
+        <script src="../node_modules/popper.js/dist/umd/popper-utils.js"></script>
+        <script src="../node_modules/jquery/dist/jquery.min.js"></script>
+        <script src="../node_modules/bootstrap/dist/js/bootstrap.js"></script>
+        <script src="../node_modules/json-formatter-js/dist/json-formatter.umd.js"></script>
+        <script src="./snowfakeryEditor.js"></script>
         <script src='./interface.js'></script>
     </body>
 </html>

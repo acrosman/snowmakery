@@ -1,3 +1,5 @@
+- plugin: tests.test_custom_plugins_and_providers.DoubleVisionPlugin
+- plugin: tests.test_custom_plugins_and_providers.PluginThatNeedsState
 - object: PetFood
   nickname: petschoice
   fields:

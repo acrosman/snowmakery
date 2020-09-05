@@ -124,7 +124,7 @@ ipcMain.on('sample_message', (event, args) => {
 
   // Sample useless response.
   mainWindow.webContents.send('sample_response', {
-    message: 'Interface sent a message to main: ' + args.message_content,
+    message: 'File Loaded',
     yaml: data,
   });
   return true;
