@@ -72,15 +72,61 @@ class SnowfakeryEditor {
    */
   renderObjectTemplate(template) {
     console.log('Render Object Template');
+    this.dom.appendChild(this.generateObject('Object', template));
+  }
+
+  /**
+   * Wraps an array and generates DOM for sub-elements.
+   * @param {string} label, the section label.
+   * @param {Array} element the array element.
+   * @return {Element} the generated elements.
+   */
+  generateArray(label, element) {
+    const arrayDiv = document.createElement('div');
+    for (const el of element) {
+      arrayDiv.appendChild(this.generateObject(label, el));
+    }
+
+    return arrayDiv;
+  }
+
+  /**
+   * Renders a random JS object into the needed tree.
+   * @param {string} label section label.
+   * @param {*} element the element in the tree to render.
+   * @return {Element} Dom element generated.
+   */
+  generateObject(label, element) {
     const objectDiv = document.createElement('div');
-    const label = this.generateWrappedText(
-        'Object',
+    const labelNode = this.generateWrappedText(
+        label,
         'span',
         {class: 'badge badge-info'},
     );
+    objectDiv.appendChild(labelNode);
 
-    objectDiv.appendChild(label);
-    this.dom.appendChild(objectDiv);
+    let row;
+    for (const [key, value] of Object.entries(element)) {
+      if (Array.isArray(value) && value !== null) {
+        objectDiv.appendChild(this.generateArray(key, value));
+      }
+      if (this.isObject(value) && value !== null) {
+        objectDiv.appendChild(this.generateObject(key, value));
+      } else {
+        row = this.generateLabeledInput({
+          label: `${key}: `,
+          elementId: `sm-${key}-${this.elementCounter}`,
+          inputType: 'text',
+          value: value,
+          classes: {
+            wrapper: [],
+            inner: [],
+          },
+        });
+        objectDiv.appendChild(row);
+      }
+    }
+    return objectDiv;
   }
 
   /**
@@ -147,5 +193,14 @@ class SnowfakeryEditor {
     for (const statement of this.data) {
       this.renderElement(statement);
     }
+  }
+
+  /**
+   * Checks if a value is an object.
+   * @param {*} value value to test.
+   * @return {boolean}
+   */
+  isObject (value) {
+    return value && typeof value === 'object' && value.constructor === Object;
   }
 }
