@@ -23,8 +23,8 @@ window.api.receive('sample_response', (data) => {
   document.getElementById('raw-data').appendChild(formatter.render());
 
   const editor = new SnowfakeryEditor(
-      data.yaml,
       document.getElementById('editor-wrapper'),
+      'Sample',
+      data.yaml,
   );
-  editor.renderAll();
 });

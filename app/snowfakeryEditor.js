@@ -4,14 +4,57 @@
 class SnowfakeryEditor {
   /**
    * Constructor for a new editor.
-   * @param {Array} existingDataStructure Snowfakery config, likely loaded
-   *  from file.
    * @param {Element} domTarget The Dom element to connect to.
+   * @param {String} recipeName the name of this Snowfakery recipe.
+   * @param {Array} existingRecipe Snowfakery config, likely loaded from file.
    */
-  constructor(existingDataStructure, domTarget) {
-    this.data = existingDataStructure;
+  constructor(domTarget, recipeName, existingRecipe) {
     this.dom = domTarget;
     this.elementCounter = 0;
+    this.recipeName = recipeName;
+
+    this.recipe = {
+      plugins: [],
+      include_files: [],
+      options: [],
+      macros: [],
+      objects: [],
+    };
+
+    if (!this.isEnptyObject(existingRecipe)) {
+      for (const element of existingRecipe) {
+        if (Object.prototype.hasOwnProperty.call(element, 'plugin')) {
+          this.recipe.plugins.push(element);
+        } else if (Object.prototype.hasOwnProperty.call(element, 'include_file')) {
+          this.recipe.include_files.push(element);
+        } else if (Object.prototype.hasOwnProperty.call(element, 'macro')) {
+          this.recipe.macros.push(element);
+        } else if (Object.prototype.hasOwnProperty.call(element, 'option')) {
+          this.recipe.options.push(element);
+        } else if (Object.prototype.hasOwnProperty.call(element, 'object')) {
+          this.recipe.objects.push(element);
+        }
+      }
+    }
+
+    this.renderAll();
+  }
+
+  /**
+   * Add a plugin to the Snow Plan
+   * @param {*} existingPlugin a plugin object to add.
+   */
+  addPlugin(existingPlugin) {
+    const newPlugin = {
+      plugin: '',
+    };
+    if (!this.isEnptyObject(existingPlugin)) {
+      // Append to the plugin collection.
+      newPlugin.plugin = existingPlugin.plugin;
+    }
+
+    this.recipe.plugins.push(newPlugin);
+    this.renderAll();
   }
 
   /**
@@ -130,6 +173,30 @@ class SnowfakeryEditor {
   }
 
   /**
+   * Renders a specific include file into the dom.
+   * @param {object} file The file reference to render.
+   */
+  renderInclude(file) {
+    console.log('Render Include File');
+  }
+
+  /**
+   * Renders a specific macro into the dom.
+   * @param {object} marco The marco to render.
+   */
+  renderMarco(marco) {
+    console.log('Render Marco');
+  }
+
+  /**
+   * Renders a specific option into the dom.
+   * @param {object} option The option to render.
+   */
+  renderOption(option) {
+    console.log('Render Option');
+  }
+
+  /**
    * Render a plugin element.
    * @param {object} plugin a plugin element for rendering.
    */
@@ -151,35 +218,28 @@ class SnowfakeryEditor {
   }
 
   /**
-   * Renders a specific element from a Snowfakery file. This function
-   * determines the element type and forwards it on for final rendering.
-   * @param {Object} element The element to render.
+   * Generage a button to add a new section.
+   * @param {object} settings button settings.
+   * @return {Element} returns the new dom element.
    */
-  renderElement(element) {
-    const elementTypes = [
-      'object',
-      'plugin',
-    ];
+  generateSectionAddButton(settings) {
+    const buttonWrapper = document.createElement('div');
+    const button = document.createElement('button');
+    const label = this.generateWrappedText(
+        settings.label,
+        'span',
+        {class: 'glyphicon glyphicon-plus-sign'},
+    );
 
-    let foundEngine = '';
-    for (const key of elementTypes) {
-      if (Object.prototype.hasOwnProperty.call(element, key)) {
-        foundEngine = key;
-        break;
-      }
-    }
+    button.setAttribute('type', 'button');
+    button.setAttribute('class', 'btn btn-default btn-sm');
 
-    switch (foundEngine) {
-      case 'plugin':
-        this.renderPlugin(element);
-        break;
-      case 'object':
-        this.renderObjectTemplate(element);
-        break;
-      default:
-        console.log('missing renderer');
-    }
+    button.appendChild(label);
+    buttonWrapper.appendChild(button);
+
+    return buttonWrapper;
   }
+
   /**
    * Renders the current data into the dom, replacing anything already there.
    */
@@ -188,19 +248,71 @@ class SnowfakeryEditor {
     this.dom.innerHTML = '';
     this.elementCounter = 0;
 
-    // Loop over the main elements and send each off for appropreiate rendering.
-    // Order matters here, so we need to run carefully.
-    for (const statement of this.data) {
-      this.renderElement(statement);
+    for (const plugin of this.recipe.plugins) {
+      this.renderPlugin(plugin);
     }
+
+    this.dom.appendChild(this.generateSectionAddButton({label: 'Add Plugin'}));
+
+    for (const file of this.recipe.include_files) {
+      this.renderInclude(file);
+    }
+
+    this.dom.appendChild(this.generateSectionAddButton({label: 'Add Include'}));
+
+    for (const macro of this.recipe.macros) {
+      this.renderMacro(macro);
+    }
+
+    this.dom.appendChild(this.generateSectionAddButton({label: 'Add Macro'}));
+
+    for (const opt of this.recipe.options) {
+      this.renderOption(opt);
+    }
+
+    this.dom.appendChild(this.generateSectionAddButton({label: 'Add Option'}));
+
+    for (const obj of this.recipe.objects) {
+      this.renderObjectTemplate(obj);
+    }
+
+    this.dom.appendChild(this.generateSectionAddButton({label: 'Add Object'}));
   }
 
+  // =================== General JS Helpers ======================
   /**
    * Checks if a value is an object.
    * @param {*} value value to test.
    * @return {boolean}
    */
-  isObject (value) {
+  isObject(value) {
     return value && typeof value === 'object' && value.constructor === Object;
+  }
+
+  /**
+   * Returns true with the value is null or undefined.
+   * @param {*} value the value to test.
+   * @return {boolean} empty status.
+   */
+  isEnptyObject(value) {
+    return this.isNull(value) || this.isUndefined(value);
+  }
+
+  /**
+   * Returns if a value is null.
+   * @param {*} value value to test.
+   * @return {boolean} result of test.
+   */
+  isNull(value) {
+    return value === null;
+  }
+
+  /**
+   * Returns if a value is undefined
+   * @param {*} value value to test.
+   * @return {boolean} result of test.
+   */
+  isUndefined(value) {
+    return typeof value === 'undefined';
   }
 }
