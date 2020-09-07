@@ -26,9 +26,9 @@ window.api.receive('sample_response', (data) => {
       data.yaml,
   );
 
-  editor.addUpdateCallback((newPlan) => {
+  editor.addUpdateCallback((newRecipe) => {
     document.getElementById('raw-data').innerHTML = '';
-    const formatter = new JSONFormatter(data.yaml, 1, {
+    const formatter = new JSONFormatter(newRecipe, 1, {
       hoverPreviewEnabled: true,
       hoverPreviewArrayCount: 100,
       hoverPreviewFieldCount: 5,

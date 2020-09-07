@@ -22,7 +22,7 @@ class SnowfakeryEditor {
       objects: [],
     };
 
-    if (!this.isEnptyObject(existingRecipe)) {
+    if (!this.isEmptyObject(existingRecipe)) {
       for (const element of existingRecipe) {
         if (Object.prototype.hasOwnProperty.call(element, 'plugin')) {
           this.recipe.plugins.push(element);
@@ -46,7 +46,7 @@ class SnowfakeryEditor {
    * @param {function} callback the function to call when there are updates to the recipe.
    */
   addUpdateCallback(callback) {
-    this.updateCallbacks.append(callback);
+    this.updateCallbacks.push(callback);
   }
 
   /**
@@ -57,19 +57,19 @@ class SnowfakeryEditor {
     const data = [];
 
     for (const plug of this.recipe.plugins) {
-      data.append(plug);
+      data.push(plug);
     }
     for (const file of this.recipe.include_files) {
-      data.append(file);
+      data.push(file);
     }
     for (const option of this.recipe.options) {
-      data.append(option);
+      data.push(option);
     }
     for (const macro of this.recipe.macros) {
-      data.append(macro);
+      data.push(macro);
     }
     for (const obj of this.recipe.objects) {
-      data.append(obj);
+      data.push(obj);
     }
 
     return data;
@@ -85,21 +85,41 @@ class SnowfakeryEditor {
   }
 
   /**
-   * Add a plugin to the Snow Plan
+   * Add a plugin to the recipe.
    * @param {*} existingPlugin a plugin object to add.
    */
   addPlugin(existingPlugin) {
     const newPlugin = {
       plugin: '',
     };
-    if (!this.isEnptyObject(existingPlugin)) {
+    if (!this.isEmptyObject(existingPlugin) && this.isset(existingPlugin.plugin)) {
       // Append to the plugin collection.
       newPlugin.plugin = existingPlugin.plugin;
     }
 
     this.recipe.plugins.push(newPlugin);
+    this.handleUpdateCallbacks();
     this.renderAll();
   }
+
+  /**
+   * Add an include to the recipe.
+   * @param {*} existingInclude an include_file object to add.
+   */
+  addIncludeFile(existingInclude) {
+    const newInclude = {
+      include_file: '',
+    };
+    if (!this.isEmptyObject(existingInclude) && this.isset(existingInclude.include_file)) {
+      // Append to the plugin collection.
+      newInclude.plugin = existingInclude.include_file;
+    }
+
+    this.recipe.include_files.push(newInclude);
+    this.handleUpdateCallbacks();
+    this.renderAll();
+  }
+
 
   /**
    * Generate and return set of dom elements for a form element, wrapped in a
@@ -156,10 +176,14 @@ class SnowfakeryEditor {
   /**
    * Render an object template
    * @param {object} template the object template to render.
+   * @param {Element} domTarget the spot in the dom to render the Object.
    */
-  renderObjectTemplate(template) {
+  renderObjectTemplate(template, domTarget) {
     console.log('Render Object Template');
-    this.dom.appendChild(this.generateObject('Object', template));
+    if (!this.isset(domTarget)) {
+      domTarget = this.dom;
+    }
+    domTarget.appendChild(this.generateObject('Object', template));
   }
 
   /**
@@ -178,7 +202,7 @@ class SnowfakeryEditor {
   }
 
   /**
-   * Renders a random JS object into the needed tree.
+   * Renders a random JS object into the tree.
    * @param {string} label section label.
    * @param {*} element the element in the tree to render.
    * @return {Element} Dom element generated.
@@ -219,33 +243,71 @@ class SnowfakeryEditor {
   /**
    * Renders a specific include file into the dom.
    * @param {object} file The file reference to render.
+   * @param {Element} domTarget the spot in the dom to render the include.
    */
-  renderInclude(file) {
+  renderInclude(file, domTarget) {
     console.log('Render Include File');
+    if (!this.isset(domTarget)) {
+      domTarget = this.dom;
+    }
+    this.elementCounter++;
+    const newInclude = this.generateLabeledInput({
+      label: 'Include_File: ',
+      elementId: `sm-include-${this.elementCounter}`,
+      inputType: 'text',
+      value: file.include_file,
+      classes: {
+        wrapper: [],
+        inner: [],
+      },
+    });
+
+    domTarget.appendChild(newInclude);
   }
 
   /**
    * Renders a specific macro into the dom.
-   * @param {object} marco The marco to render.
+   * @param {object} macro The macro to render.
+   * @param {Element} domTarget the spot in the dom to render the macro.
    */
-  renderMarco(marco) {
+  renderMarco(macro, domTarget) {
     console.log('Render Marco');
+    if (!this.isset(domTarget)) {
+      domTarget = this.dom;
+    }
+
+    // TODO: Work out a responable way to handle these. Free Text?
+    if (this.isEmptyObject(macro)) {
+      alert('Sorry adding macros is not yet supported.');
+      return;
+    }
+
+    const newMacro = this.generateObject('Macro', macro);
+    domTarget.appendChild(newMacro);
   }
 
   /**
    * Renders a specific option into the dom.
    * @param {object} option The option to render.
+   * @param {Element} domTarget the spot in the dom to render the macro.
    */
-  renderOption(option) {
+  renderOption(option, domTarget) {
     console.log('Render Option');
+    if (!this.isset(domTarget)) {
+      domTarget = this.dom;
+    }
   }
 
   /**
    * Render a plugin element.
    * @param {object} plugin a plugin element for rendering.
+   * @param {Element} domTarget the spot in the dom to render the plugin.
    */
-  renderPlugin(plugin) {
+  renderPlugin(plugin, domTarget) {
     console.log('Render Plugin');
+    if (!this.isset(domTarget)) {
+      domTarget = this.dom;
+    }
     this.elementCounter++;
     const newPlugin = this.generateLabeledInput({
       label: 'Plugin: ',
@@ -258,7 +320,7 @@ class SnowfakeryEditor {
       },
     });
 
-    this.dom.appendChild(newPlugin);
+    domTarget.appendChild(newPlugin);
   }
 
   /**
@@ -281,6 +343,10 @@ class SnowfakeryEditor {
     button.appendChild(label);
     buttonWrapper.appendChild(button);
 
+    if (!this.isEmptyObject(settings.clickHandler)) {
+      button.addEventListener('click', settings.clickHandler);
+    }
+
     return buttonWrapper;
   }
 
@@ -296,13 +362,23 @@ class SnowfakeryEditor {
       this.renderPlugin(plugin);
     }
 
-    this.dom.appendChild(this.generateSectionAddButton({label: 'Add Plugin'}));
+    this.dom.appendChild(this.generateSectionAddButton({
+      label: 'Add Plugin',
+      clickHandler: () => {
+        this.addPlugin();
+      },
+    }));
 
     for (const file of this.recipe.include_files) {
       this.renderInclude(file);
     }
 
-    this.dom.appendChild(this.generateSectionAddButton({label: 'Add Include'}));
+    this.dom.appendChild(this.generateSectionAddButton({
+      label: 'Add Include',
+      clickHandler: () => {
+        this.addIncludeFile();
+      },
+    }));
 
     for (const macro of this.recipe.macros) {
       this.renderMacro(macro);
@@ -334,11 +410,34 @@ class SnowfakeryEditor {
   }
 
   /**
+   * Returns turn when the argument is a valid object. Derived from: https://locutus.io/php/isset/
+   * @return {boolean} true when the tested value is set.
+   */
+  isset(...args) {
+    const l = args.length;
+    let i = 0;
+    let undef;
+
+    if (l === 0) {
+      throw new Error('Empty call to editor isset');
+    }
+
+    while (i !== l) {
+      if (args[i] === undef || args[i] === null) {
+        return false;
+      }
+      i++;
+    }
+
+    return true;
+  }
+
+  /**
    * Returns true with the value is null or undefined.
    * @param {*} value the value to test.
    * @return {boolean} empty status.
    */
-  isEnptyObject(value) {
+  isEmptyObject(value) {
     return this.isNull(value) || this.isUndefined(value);
   }
 
