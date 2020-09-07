@@ -118,14 +118,13 @@ app.on('activate', () => {
 /**
  * Example IPC message handler.
  */
-ipcMain.on('sample_message', (event, args) => {
+ipcMain.on('interface_ready', (event, args) => {
   const file = fs.readFileSync('./sample_data/pets.yml', 'utf8');
   let data = yaml.parse(file);
 
   // Sample useless response.
   data = null;
-  mainWindow.webContents.send('sample_response', {
-    message: 'File Loaded',
+  mainWindow.webContents.send('initialize_editor', {
     yaml: data,
   });
   return true;

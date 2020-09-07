@@ -1,14 +1,12 @@
 /* global JSONFormatter */
 /* global SnowfakeryEditor */
 document.addEventListener('DOMContentLoaded', (event) => {
-  window.api.send('sample_message', {
-    message_content: 'Stuff and Things',
-  });
+  window.api.send('interface_ready', {});
 });
 
 // Org Limits Response Handler.
-window.api.receive('sample_response', (data) => {
-  // Render the file content.
+window.api.receive('initialize_editor', (data) => {
+  // Render any provided default data.
   const formatter = new JSONFormatter(data.yaml, 1, {
     hoverPreviewEnabled: true,
     hoverPreviewArrayCount: 100,
@@ -20,6 +18,7 @@ window.api.receive('sample_response', (data) => {
   });
   document.getElementById('raw-data').appendChild(formatter.render());
 
+  // Enable the editor.
   const editor = new SnowfakeryEditor(
       document.getElementById('editor-wrapper'),
       'Sample',

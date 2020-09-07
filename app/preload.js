@@ -8,7 +8,9 @@ contextBridge.exposeInMainWorld('api', {
   send: (channel, data) => {
     // List channels to allow.
     const validChannels = [
-      'sample_message',
+      'interface_ready',
+      'load_file',
+      'save_file',
     ];
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
@@ -17,7 +19,9 @@ contextBridge.exposeInMainWorld('api', {
   receive: (channel, func) => {
     // List channels to allow.
     const validChannels = [
-      'sample_response',
+      'initialize_editor',
+      'file_loaded',
+      'file_saved',
     ];
     if (validChannels.includes(channel)) {
       // Remove the event to avoid information leaks.
