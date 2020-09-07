@@ -9,16 +9,11 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-md-12">
-                    <form role="form" class="form-inline">
+                    <form role="form" class="form">
                         <div class="form-group">
-                            <label for="existingYmlFile">
-                                Select Your Snowfakery Yaml File:
-                            </label>
-                            <input type="file" class="form-control-file" id="existingYmlFile" />
-                            <p class="help-block">If you don't have one try one of the sample files included with this program.</p>
+                            <button type="submit" class="btn btn-primary" id="sm-btn-load-config">Load Recipe</button>
+                            <button type="submit" class="btn btn-primary" id="sm-btn-save-config">Export Recipe</button>
                         </div>
-                        <button type="submit" class="btn btn-primary">Load Config</button>
-                        <button type="submit" class="btn btn-danger">Export Config</button>
                     </form>
                 </div>
             </div>
@@ -26,6 +21,7 @@
                 <div class="col-md-8" id="editor-wrapper">
                 </div>
                 <div class="col-md-4">
+                    <h2>Current Recipe:</h2>
                     <div id="raw-data"></div>
                 </div>
             </div>

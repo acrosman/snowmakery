@@ -1,7 +1,7 @@
 const electron = require('electron');
 
 // Module to control application life.
-const {app, BrowserWindow, ipcMain} = electron;
+const {app, BrowserWindow, ipcMain, dialog} = electron;
 
 // Developer Dependencies.
 const isDev = !app.isPackaged;
@@ -115,8 +115,10 @@ app.on('activate', () => {
   }
 });
 
+// =================== Message Handlers =====================
+
 /**
- * Example IPC message handler.
+ * Interface loaded.
  */
 ipcMain.on('interface_ready', (event, args) => {
   const file = fs.readFileSync('./sample_data/pets.yml', 'utf8');
@@ -128,4 +130,66 @@ ipcMain.on('interface_ready', (event, args) => {
     yaml: data,
   });
   return true;
+});
+
+/**
+ * Load existing recipe file.
+ */
+ipcMain.on('load_file', (event, args) => {
+  const fileNames = dialog.showOpenDialogSync({
+    filters: {name: 'Yaml', extensions: ['yaml', 'yml']},
+  });
+
+  let responseMessage;
+  if (fileNames === undefined) {
+    responseMessage = {
+      message: 'No file selected',
+      file: null,
+      recipe: null,
+    };
+  } else {
+    const file = fs.readFileSync(fileNames[0], 'utf8');
+    const data = yaml.parse(file);
+
+    responseMessage = {
+      message: `Loading File ${fileNames[0]}`,
+      file: fileNames[0],
+      recipe: data,
+    };
+  }
+  mainWindow.webContents.send('file_loaded', responseMessage);
+  return true;
+});
+
+/**
+ * Save recipe to file.
+ */
+ipcMain.on('save_file', (event, args) => {
+  dialog.showSaveDialog(mainWindow, {
+    buttonLabel: 'Export',
+    properties: ['createDirectory', 'showOverwriteConfirmation'],
+  }).then(
+      (success) => {
+        if (success.canceled) {
+          mainWindow.webContents.send('file_saved', {
+            message: 'Save Cancled',
+            filePath: null,
+          });
+          return true;
+        }
+        const data = yaml.stringify(args.recipe);
+        fs.writeFileSync(success.filePath, data, {encoding: 'utf8'});
+        mainWindow.webContents.send('file_saved', {
+          message: 'Recipe Saved.',
+          filePath: success.filePath,
+        });
+        return true;
+      },
+      (error) => {
+        mainWindow.webContents.send('file_saved', {
+          message: `Error saving file: ${error.message}`,
+          filePath: null,
+        });
+      },
+  );
 });
