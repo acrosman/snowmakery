@@ -1,25 +1,17 @@
-# ElectronSimpleStarter
-Like bread starter, this is the very basic starter for an Electron project.
+# Snowmakery - Recipe Editor for Snowfakery
 
-Basically I got frustrated with starters that were insecure or overly opinionated. So I created this one to help me get started more quickly on projects with some basic reminders and examples in place for how to build a secure app, without also imposing a bunch of extra material for interface design and testing.
+[Snowfakery](https://github.com/SFDO-Tooling/Snowfakery) is a tool for generatoring relational data sets. It was created by the Salesforce.org team as [a partial response to a need for better test data](https://www.attain.com/blog/salesforce-open-source-commons) for Salesforce projects. Snowfakery is great, but creating recipe files is a bit hard when you are first learning. This project is meant to help bridge that gap, while experts will probably want to handcraft the files [until better tools come around](https://github.com/SFDO-Community-Sprints/DataGenerationToolkit), this will hopefully help people understand the options as they are getting started.
 
-Interface design systems and testing kits are really important to making your project successful,but my goal with this starter kit is to be unopinionated about those things (in part because to-date I don't have a strong opinion about them).
+Snowfakery does not require Salesforce at all, it's a totally free-standing data generator capable to produce large amounts of carefully shaped data quickly. Snowmakery a free-standing Electron app that is simple meant to generate files for Snowfakery.
 
-Suggestions and PRs welcome, although suggesting specific add-ons an libraries will need to show they are the only viable option not one of many.
+## Running
 
-This is not meant as a project to use for a tutorial, although maybe I'll get there sometime in the future.  This is really meant to put in place the very basic plumbing you need to meed the current security practices for Electron projects.
+Currently this project is in the very initial stages of development and is not fully functional – please feel free to contribute if you think it would be useful. It does not currently have an app builder setup (although that may change).
 
-_You are responsible for the security of your own project._ There is definitly a risk I'll get behind on updates, or simply mis-implement something. Care for your project the way you hope others will care for theirs. As you gain confidence and experience with Electron you should understand and follow all the [guideance from the project's maintainers](https://www.electronjs.org/docs/tutorial/security) (even when their quick start doesn't).
+### Setup
+1. Clone this repo, or your own fork.
+2. Run `npm i` from the project root.
 
-## Using this Template:
+Once NPM has installed all the required packages run `npm start` to load the project.  There is a simple sample Snowfakery recipe in the sample_data directory.
 
-1. `mkdir myproject`
-1. `cd myproject`
-1. `wget https://github.com/acrosman/ElectronSimpleStarter/archive/master.zip`
-1. `unzip master.zip .`
-1. `npm i`
-1. Edit the project.json file to remove my name and repository information, add yours, and then you're off to the races to build your own app.
-
-## Similar Projects
-* [Main Electrong Quick Start](https://github.com/electron/electron-quick-start): Tied to lots of tutorials, but tends to be behind on the security best practices.
-* [secure-electron-template](https://github.com/reZach/secure-electron-template): This is an excellent template, and the source of inspriation for much of this one, but it's more opintionated than I wanted (and I disagree with some choices).
+Pull requests and other contributions welcome.
