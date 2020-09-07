@@ -12,6 +12,7 @@ class SnowfakeryEditor {
     this.dom = domTarget;
     this.elementCounter = 0;
     this.recipeName = recipeName;
+    this.updateCallbacks = [];
 
     this.recipe = {
       plugins: [],
@@ -38,6 +39,49 @@ class SnowfakeryEditor {
     }
 
     this.renderAll();
+  }
+
+  /**
+   * Add an update callback function.
+   * @param {function} callback the function to call when there are updates to the recipe.
+   */
+  addUpdateCallback(callback) {
+    this.updateCallbacks.append(callback);
+  }
+
+  /**
+   * Returns an object ready to convert into final YAML for Snowfakery.
+   * @return {object} the current recipe restructured for use.
+   */
+  getRecipe() {
+    const data = [];
+
+    for (const plug of this.recipe.plugins) {
+      data.append(plug);
+    }
+    for (const file of this.recipe.include_files) {
+      data.append(file);
+    }
+    for (const option of this.recipe.options) {
+      data.append(option);
+    }
+    for (const macro of this.recipe.macros) {
+      data.append(macro);
+    }
+    for (const obj of this.recipe.objects) {
+      data.append(obj);
+    }
+
+    return data;
+  }
+
+  /**
+   * Call all callbacks when there is a new update.
+   */
+  handleUpdateCallbacks() {
+    for (const callback of this.updateCallbacks) {
+      callback(this.getRecipe());
+    }
   }
 
   /**

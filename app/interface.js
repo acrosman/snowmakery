@@ -8,8 +8,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
 // Org Limits Response Handler.
 window.api.receive('sample_response', (data) => {
-  alert(data.message);
-
   // Render the file content.
   const formatter = new JSONFormatter(data.yaml, 1, {
     hoverPreviewEnabled: true,
@@ -27,4 +25,18 @@ window.api.receive('sample_response', (data) => {
       'Sample',
       data.yaml,
   );
+
+  editor.addUpdateCallback((newPlan) => {
+    document.getElementById('raw-data').innerHTML = '';
+    const formatter = new JSONFormatter(data.yaml, 1, {
+      hoverPreviewEnabled: true,
+      hoverPreviewArrayCount: 100,
+      hoverPreviewFieldCount: 5,
+      animateOpen: true,
+      animateClose: true,
+      theme: 'dark',
+      useToJSON: true,
+    });
+    document.getElementById('raw-data').appendChild(formatter.render());
+  });
 });

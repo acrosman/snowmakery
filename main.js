@@ -120,9 +120,10 @@ app.on('activate', () => {
  */
 ipcMain.on('sample_message', (event, args) => {
   const file = fs.readFileSync('./sample_data/pets.yml', 'utf8');
-  const data = yaml.parse(file);
+  let data = yaml.parse(file);
 
   // Sample useless response.
+  data = null;
   mainWindow.webContents.send('sample_response', {
     message: 'File Loaded',
     yaml: data,
