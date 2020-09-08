@@ -112,7 +112,7 @@ class SnowfakeryEditor {
     };
     if (!this.isEmptyObject(existingInclude) && this.isset(existingInclude.include_file)) {
       // Append to the plugin collection.
-      newInclude.plugin = existingInclude.include_file;
+      newInclude.include_file = existingInclude.include_file;
     }
 
     this.recipe.include_files.push(newInclude);
@@ -120,6 +120,23 @@ class SnowfakeryEditor {
     this.renderAll();
   }
 
+  /**
+   * Add a macro to the recipe.
+   * @param {*} existingMacro a macro object to add.
+   */
+  addMacro(existingMacro) {
+    const newMacro = {
+      macro: '',
+    };
+    if (!this.isEmptyObject(existingMacro) && this.isset(existingMacro.macro)) {
+      // Append to the plugin collection.
+      newMacro.macro = existingMacro.macro;
+    }
+
+    this.recipe.macros.push(newMacro);
+    this.handleUpdateCallbacks();
+    this.renderAll();
+  }
 
   /**
    * Generate and return set of dom elements for a form element, wrapped in a
@@ -214,6 +231,7 @@ class SnowfakeryEditor {
         'span',
         {class: 'badge badge-info'},
     );
+    objectDiv.setAttribute('class', 'object-wrapper');
     objectDiv.appendChild(labelNode);
 
     let row;
@@ -384,7 +402,12 @@ class SnowfakeryEditor {
       this.renderMacro(macro);
     }
 
-    this.dom.appendChild(this.generateSectionAddButton({label: 'Add Macro'}));
+    this.dom.appendChild(this.generateSectionAddButton({
+      label: 'Add Macro',
+      clickHandler: () => {
+        this.addMacro();
+      },
+    }));
 
     for (const opt of this.recipe.options) {
       this.renderOption(opt);
