@@ -23,28 +23,9 @@ document.getElementById('sm-btn-save-config').addEventListener('click', () => {
  * @param {*} jsonId
  */
 function editorInit(data, editorId, jsonId) {
-  // Render any provided default data.
-  const formatter = new JSONFormatter(data.yaml, 1, {
-    hoverPreviewEnabled: true,
-    hoverPreviewArrayCount: 100,
-    hoverPreviewFieldCount: 5,
-    animateOpen: true,
-    animateClose: true,
-    theme: 'dark',
-    useToJSON: true,
-  });
-  document.getElementById(jsonId).appendChild(formatter.render());
-
-  // Enable the editor.
-  const editor = new SnowfakeryEditor(
-      document.getElementById(editorId),
-      data.file,
-      data.recipe,
-  );
-
-  editor.addUpdateCallback((newRecipe) => {
-    document.getElementById(jsonId).innerHTML = '';
-    const formatter = new JSONFormatter(newRecipe, 1, {
+  if (data.recipe !== null) {
+    // Render any provided default data.
+    const formatter = new JSONFormatter(data.recipe, 1, {
       hoverPreviewEnabled: true,
       hoverPreviewArrayCount: 100,
       hoverPreviewFieldCount: 5,
@@ -54,6 +35,29 @@ function editorInit(data, editorId, jsonId) {
       useToJSON: true,
     });
     document.getElementById(jsonId).appendChild(formatter.render());
+  }
+
+  // Enable the editor.
+  const editor = new SnowfakeryEditor(
+      document.getElementById(editorId),
+      data.file,
+      data.recipe,
+  );
+
+  editor.addUpdateCallback((newRecipe) => {
+    if (newRecipe !== null) {
+      document.getElementById(jsonId).innerHTML = '';
+      const formatter = new JSONFormatter(newRecipe, 1, {
+        hoverPreviewEnabled: true,
+        hoverPreviewArrayCount: 100,
+        hoverPreviewFieldCount: 5,
+        animateOpen: true,
+        animateClose: true,
+        theme: 'dark',
+        useToJSON: true,
+      });
+      document.getElementById(jsonId).appendChild(formatter.render());
+    }
   });
 
   document.editor = editor;

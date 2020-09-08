@@ -127,7 +127,7 @@ ipcMain.on('interface_ready', (event, args) => {
   // Sample useless response.
   data = null;
   mainWindow.webContents.send('initialize_editor', {
-    yaml: data,
+    recipe: data,
   });
   return true;
 });
