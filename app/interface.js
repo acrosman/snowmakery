@@ -24,6 +24,11 @@ document.getElementById('sm-btn-save-config').addEventListener('click', () => {
  * @param {*} jsonId
  */
 function editorInit(data, editorId, jsonId) {
+  if (document.editor) {
+    document.editor.destroy();
+    document.editor = null;
+  }
+
   if (data.recipe !== null) {
     // Render any provided default data.
     const formatter = new JSONFormatter(data.recipe, 1, {
@@ -48,19 +53,20 @@ function editorInit(data, editorId, jsonId) {
     no_additional_properties: true,
     input_width: '100px',
     object_layout: 'grid',
+    startval: data.recipe,
   };
 
-  const editor = new SnowfakeryEditor('editor_holder', 'New Recipe', null, editorOptions);
+  const editor = new SnowfakeryEditor(editorId, 'New Recipe', null, editorOptions);
 
   document.editor = editor;
 }
 
 // Basic editor initialization.
 window.api.receive('initialize_editor', (data) => {
-  editorInit(data, 'editor-wrapper', 'raw-data');
+  editorInit(data, 'editor-holder', 'raw-data');
 });
 
 // When new files are loaded, re-initialize the editor.
 window.api.receive('file_loaded', (data) => {
-  editorInit(data, 'editor-wrapper', 'raw-data');
+  editorInit(data, 'editor-holder', 'raw-data');
 });

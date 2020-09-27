@@ -12,10 +12,8 @@ class SnowfakeryEditor { // eslint-disable-line no-unused-vars
    */
   constructor(domTarget, recipeName, existingRecipe, editorConfig) {
     this.dom = domTarget;
-    this.elementCounter = 0;
     this.recipeName = recipeName;
     this.config = editorConfig;
-    this.updateCallbacks = [];
 
     // Default Editor options.
     const defaultOptions = {
@@ -59,8 +57,6 @@ class SnowfakeryEditor { // eslint-disable-line no-unused-vars
     }
 
     this._setupEditor(domTarget);
-
-    this.renderAll();
   }
 
   /**
@@ -161,6 +157,8 @@ class SnowfakeryEditor { // eslint-disable-line no-unused-vars
     // Get the value from the editor
       console.log(editor.getValue());
     });
+
+    this.editor = editor;
   }
 
   /**
@@ -286,6 +284,16 @@ class SnowfakeryEditor { // eslint-disable-line no-unused-vars
     }
 
     return data;
+  }
+
+  /**
+   * Destroy's the existing editor.
+   */
+  destroy() {
+    this.editor.destroy();
+    this.dom = null;
+    this.recipeName = null;
+    this.config = null;
   }
 
   // =================== General JS Helpers ======================
