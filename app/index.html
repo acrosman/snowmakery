@@ -1,7 +1,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'unsafe-inline' 'self' https://fonts.googleapis.com">
         <link rel="stylesheet" href="../node_modules/bootswatch/dist/cyborg/bootstrap.min.css">
         <link rel="stylesheet" href="../node_modules/json-formatter-js/dist/json-formatter.css">
         <link rel="stylesheet" href="../node_modules/@fortawesome/fontawesome-free/css/all.css">
@@ -21,6 +21,8 @@
             </div>
             <div class="row">
                 <div class="col-md-8" id="editor-wrapper">
+                    <div id='editor_holder'></div>
+                    <button id='submit'>Submit (console.log)</button>
                 </div>
                 <div class="col-md-4">
                     <h2>Current Recipe:</h2>
@@ -34,7 +36,7 @@
         <script src="../node_modules/bootstrap/dist/js/bootstrap.js"></script>
         <script src="../node_modules/json-formatter-js/dist/json-formatter.umd.js"></script>
         <script src="../node_modules/@fortawesome/fontawesome-free/js/all.js"></script>
-        <script src="./snowfakeryEditor.js"></script>
+        <script src="../node_modules/@json-editor/json-editor/dist/jsoneditor.js"></script>
         <script src='./interface.js'></script>
     </body>
 </html>
