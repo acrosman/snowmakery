@@ -40,7 +40,7 @@ function editorInit(data, editorId, jsonId) {
 
   const editorOptions = {
     theme: 'bootstrap4',
-    iconlib: 'fontawesome',
+    iconlib: 'fontawesome5',
     disable_edit_json: true,
     display_required_only: true,
     // show_errors: "never",
