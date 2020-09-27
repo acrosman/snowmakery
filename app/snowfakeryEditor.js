@@ -1,7 +1,7 @@
 /**
  * An interface to editor Snowfakery Data files.
  */
-class SnowfakeryEditor {
+class SnowfakeryEditor { // eslint-disable-line no-unused-vars
   /**
    * Constructor for a new editor.
    * @param {Element} domTarget The Dom element to connect to.
@@ -159,6 +159,13 @@ class SnowfakeryEditor {
     newInput.setAttribute('type', settings.inputType);
     newInput.setAttribute('value', settings.value);
 
+    // Set callbacks on input
+    if (!this.isEmptyObject(settings.events)) {
+      for (const [key, value] of Object.entries(settings.events)) {
+        newInput.addEventListener(key, value);
+      }
+    }
+
     // Assemble.
     newLabel.appendChild(labelText);
     newWrapper.appendChild(newLabel);
@@ -278,6 +285,11 @@ class SnowfakeryEditor {
         wrapper: [],
         inner: [],
       },
+      events: {
+        'blur': (event) => {
+          file.include_file = event.target.value;
+        },
+      },
     });
 
     domTarget.appendChild(newInclude);
@@ -335,6 +347,11 @@ class SnowfakeryEditor {
       classes: {
         wrapper: [],
         inner: [],
+      },
+      events: {
+        'blur': (event) => {
+          plugin.plugin = event.target.value;
+        },
       },
     });
 
