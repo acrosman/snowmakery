@@ -1,5 +1,6 @@
+/* global JSONEditor */
 /**
- * An interface to editor Snowfakery Data files.
+ * An interface to editor Snowfakery Data files that is a wrapper on JSON-Editor.
  */
 class SnowfakeryEditor { // eslint-disable-line no-unused-vars
   /**
@@ -7,13 +8,31 @@ class SnowfakeryEditor { // eslint-disable-line no-unused-vars
    * @param {Element} domTarget The Dom element to connect to.
    * @param {String} recipeName the name of this Snowfakery recipe.
    * @param {Array} existingRecipe Snowfakery config, likely loaded from file.
+   * @param {Object} editorConfig configuration for the editor passed to the underlying JSON Editor.
    */
-  constructor(domTarget, recipeName, existingRecipe) {
+  constructor(domTarget, recipeName, existingRecipe, editorConfig) {
     this.dom = domTarget;
     this.elementCounter = 0;
     this.recipeName = recipeName;
+    this.config = editorConfig;
     this.updateCallbacks = [];
 
+    // Default Editor options.
+    const defaultOptions = {
+      disable_edit_json: true,
+      display_required_only: true,
+      keep_oneof_values: false,
+      no_additional_properties: true,
+      object_layout: 'grid',
+    };
+
+    // Merge defaults with provided settings.
+    this.editorConfig = {
+      ...defaultOptions,
+      ...editorConfig,
+    };
+
+    // Default recipe structure for editing.
     this.recipe = {
       plugins: [],
       include_files: [],
@@ -22,6 +41,7 @@ class SnowfakeryEditor { // eslint-disable-line no-unused-vars
       objects: [],
     };
 
+    // If an existing recipe was provided merge with default structure.
     if (!this.isEmptyObject(existingRecipe)) {
       for (const element of existingRecipe) {
         if (Object.prototype.hasOwnProperty.call(element, 'plugin')) {
@@ -38,16 +58,209 @@ class SnowfakeryEditor { // eslint-disable-line no-unused-vars
       }
     }
 
+    this._setupEditor(domTarget);
+
     this.renderAll();
   }
 
   /**
-   * Add an update callback function.
-   * @param {function} callback the function to call when there are updates to the recipe.
+   * @param {string} domTargetId the id to use for the editor.
    */
-  addUpdateCallback(callback) {
-    this.updateCallbacks.push(callback);
+  _setupEditor(domTargetId) {
+    const ACCOUNT_FIELDS = {
+      Name: {
+        $ref: '#/definitions/name',
+      },
+      BillingStreet: this._makeFieldDefinition('street'),
+      BillingCity: this._makeFieldDefinition('city'),
+      BillingCountry: this._makeFieldDefinition('country'),
+      BillingPostCode: this._makeFieldDefinition('post_code'),
+
+      PrimaryContact: {
+        $ref: '#/definitions/contact',
+      },
+    };
+
+    const CONTACT_FIELDS = {
+      FirstName: this._makeFieldDefinition('first_name'),
+      LastName: this._makeFieldDefinition('last_names'),
+      AccountId: {
+        $ref: '#/definitions/account',
+      },
+    };
+
+    const SMALL_INPUT = {type: 'string', options: {input_width: '100px', grid_columns: 1}};
+
+    const MACRO = {
+      type: 'object',
+      title: 'macro',
+      format: 'grid',
+      properties: {
+        name: SMALL_INPUT,
+        fields:
+            {type: 'object', additionalProperties: true},
+      },
+      defaultProperties: ['name', 'fields'],
+    };
+
+    const PLUGINS = {
+      type: 'array',
+      items: {type: 'string'},
+      title: 'plugins',
+      required: true,
+      options: {disable_properties: true, disable_collapse: true},
+    };
+
+    const OBJECTS = {
+      'type': 'array',
+      'items': {
+        'anyOf': [
+          {title: '...', format: 'hidden', type: 'string'},
+          {
+            $ref: '#/definitions/account',
+          },
+          {
+            $ref: '#/definitions/contact',
+          },
+        ],
+      },
+      'required': true,
+      'options': {disable_properties: true, disable_collapse: true},
+    };
+
+    const docSchema = {
+      'type': 'object',
+      'title': 'Recipe',
+      'options': {disable_properties: true, disable_collapse: true},
+      'properties': {
+        objects: OBJECTS,
+        macros: {
+          type: 'array', items: {type: MACRO}, title: 'macros', required: true,
+          options: {disable_properties: true, disable_collapse: true},
+        },
+        plugins: PLUGINS,
+        include_files: {
+          type: 'array', items: {type: 'string'}, title: 'included files', required: true,
+          options: {disable_properties: true, disable_collapse: true},
+        },
+      },
+      'format': 'categories',
+      'definitions': {
+        'name': this._makeFieldDefinition('company'),
+        'account': this._makeObjectDefinition('Account', ACCOUNT_FIELDS, ['Name']),
+        'contact': this._makeObjectDefinition('Contact', CONTACT_FIELDS, ['FirstName', 'LastName']),
+      },
+    };
+
+    const editor = new JSONEditor(document.getElementById(domTargetId), {
+      schema: docSchema,
+      ...this.config});
+
+    // Hook up the submit button to log to the console
+    document.getElementById('submit').addEventListener('click', function() {
+    // Get the value from the editor
+      console.log(editor.getValue());
+    });
   }
+
+  /**
+   * Helper function to build out fields.
+   * @param {*} defaultFake
+   * @return {object}
+   */
+  _makeFieldDefinition(defaultFake) {
+    return {
+      'oneOf': [
+        {
+          type: 'string',
+          options: {grid_columns: 1, input_width: '300px'},
+        },
+        {
+          type: 'object', title: 'fake',
+          options: {disable_properties: true, disable_collapse: true},
+          properties:
+                {
+                  type: {
+                    type: 'string', required: true,
+                    enum: [
+                      'first_name',
+                      'last_name',
+                      'street',
+                      'city',
+                      'country',
+                      'post_code',
+                      'company',
+                    ],
+                    default: defaultFake,
+                    format: 'select2',
+                    options: {
+                      select2: {
+                        width: '200px',
+                      },
+                    },
+                  },
+                },
+        },
+        {
+          type: 'object', title: 'formula',
+          properties:
+                {
+                  formula: {
+                    type: 'string', required: true,
+                    options: {
+                      grid_columns: 1,
+                      input_width: '300px',
+                      disable_properties: true,
+                      disable_collapse: true,
+                    },
+                  },
+                },
+          options: {disable_properties: true, disable_collapse: true},
+        },
+      ],
+    };
+  }
+
+  /**
+   * Helper function to make it easier to build out objects.
+   * @param {*} name
+   * @param {*} fields
+   * @param {*} defaultFields
+   * @return {*}
+   */
+  _makeObjectDefinition(name, fields, defaultFields) {
+    const COMMON_PROPS = {
+      count: {
+        type: 'integer',
+        default: 1,
+        options: {grid_columns: 1},
+      },
+    };
+
+    return {
+      type: 'object',
+      title: name,
+      defaultProperties: ['object', 'count', 'fields'],
+      properties: {
+        object: {
+          type: 'string',
+          template: name,
+          required: true,
+          options: {input_width: '100px', grid_columns: 1, hidden: true},
+        },
+        ...COMMON_PROPS,
+        fields: {
+          type: 'object',
+          defaultProperties: defaultFields,
+          properties: fields,
+          format: 'grid-strict',
+          options: {class: 'foo'},
+        },
+      },
+      format: 'grid',
+    };
+  }
+
 
   /**
    * Returns an object ready to convert into final YAML for Snowfakery.
@@ -73,370 +286,6 @@ class SnowfakeryEditor { // eslint-disable-line no-unused-vars
     }
 
     return data;
-  }
-
-  /**
-   * Call all callbacks when there is a new update.
-   */
-  handleUpdateCallbacks() {
-    for (const callback of this.updateCallbacks) {
-      callback(this.getRecipe());
-    }
-  }
-
-  /**
-   * Add a plugin to the recipe.
-   * @param {*} existingPlugin a plugin object to add.
-   */
-  addPlugin(existingPlugin) {
-    const newPlugin = {
-      plugin: '',
-    };
-    if (!this.isEmptyObject(existingPlugin) && this.isset(existingPlugin.plugin)) {
-      // Append to the plugin collection.
-      newPlugin.plugin = existingPlugin.plugin;
-    }
-
-    this.recipe.plugins.push(newPlugin);
-    this.handleUpdateCallbacks();
-    this.renderAll();
-  }
-
-  /**
-   * Add an include to the recipe.
-   * @param {*} existingInclude an include_file object to add.
-   */
-  addIncludeFile(existingInclude) {
-    const newInclude = {
-      include_file: '',
-    };
-    if (!this.isEmptyObject(existingInclude) && this.isset(existingInclude.include_file)) {
-      // Append to the plugin collection.
-      newInclude.include_file = existingInclude.include_file;
-    }
-
-    this.recipe.include_files.push(newInclude);
-    this.handleUpdateCallbacks();
-    this.renderAll();
-  }
-
-  /**
-   * Add a macro to the recipe.
-   * @param {*} existingMacro a macro object to add.
-   */
-  addMacro(existingMacro) {
-    const newMacro = {
-      macro: '',
-    };
-    if (!this.isEmptyObject(existingMacro) && this.isset(existingMacro.macro)) {
-      // Append to the plugin collection.
-      newMacro.macro = existingMacro.macro;
-    }
-
-    this.recipe.macros.push(newMacro);
-    this.handleUpdateCallbacks();
-    this.renderAll();
-  }
-
-  /**
-   * Generate and return set of dom elements for a form element, wrapped in a
-   *  div.
-   * @param {object} settings the settings to use for this new element.
-   * @return {Element} new Dom Element generated.
-   */
-  generateLabeledInput(settings) {
-    // Generate elements
-    const newWrapper = document.createElement('div');
-    const newLabel = document.createElement('label');
-    const newInput = document.createElement('input');
-    const labelText = document.createTextNode(settings.label);
-
-    // Set Attributes.
-    newWrapper.setAttribute('class', settings.classes.wrapper.join(' '));
-    newLabel.setAttribute('for', settings.elementId);
-    newInput.setAttribute('id', settings.elementId);
-    newInput.setAttribute('class', settings.classes.inner.join(' '));
-    newInput.setAttribute('type', settings.inputType);
-    newInput.setAttribute('value', settings.value);
-
-    // Set callbacks on input
-    if (!this.isEmptyObject(settings.events)) {
-      for (const [key, value] of Object.entries(settings.events)) {
-        newInput.addEventListener(key, value);
-      }
-    }
-
-    // Assemble.
-    newLabel.appendChild(labelText);
-    newWrapper.appendChild(newLabel);
-    newWrapper.appendChild(newInput);
-
-    // Return
-    return newWrapper;
-  }
-
-  /**
-   * Helper to make it easy to create simple spans, labels, headers, p, etc.
-   * @param {string} text the text to wrap.
-   * @param {string} wrapperTag the tag to wrap the text in.
-   * @param {object} wrapperAttributes name value pairs for attributes.
-   * @return {Element} the generated elements.
-   */
-  generateWrappedText(text, wrapperTag, wrapperAttributes) {
-    // Generate the elements.
-    const newWrapper = document.createElement(wrapperTag);
-    const textNode = document.createTextNode(text);
-
-    // Add attributes.
-    for (const [key, value] of Object.entries(wrapperAttributes)) {
-      newWrapper.setAttribute(key, value);
-    }
-
-    // Assemble and send.
-    newWrapper.appendChild(textNode);
-    return newWrapper;
-  }
-
-  /**
-   * Render an object template
-   * @param {object} template the object template to render.
-   * @param {Element} domTarget the spot in the dom to render the Object.
-   */
-  renderObjectTemplate(template, domTarget) {
-    console.log('Render Object Template');
-    if (!this.isset(domTarget)) {
-      domTarget = this.dom;
-    }
-    domTarget.appendChild(this.generateObject('Object', template));
-  }
-
-  /**
-   * Wraps an array and generates DOM for sub-elements.
-   * @param {string} label, the section label.
-   * @param {Array} element the array element.
-   * @return {Element} the generated elements.
-   */
-  generateArray(label, element) {
-    const arrayDiv = document.createElement('div');
-    for (const el of element) {
-      arrayDiv.appendChild(this.generateObject(label, el));
-    }
-
-    return arrayDiv;
-  }
-
-  /**
-   * Renders a random JS object into the tree.
-   * @param {string} label section label.
-   * @param {*} element the element in the tree to render.
-   * @return {Element} Dom element generated.
-   */
-  generateObject(label, element) {
-    const objectDiv = document.createElement('div');
-    const labelNode = this.generateWrappedText(
-        label,
-        'span',
-        {class: 'badge badge-info'},
-    );
-    objectDiv.setAttribute('class', 'object-wrapper');
-    objectDiv.appendChild(labelNode);
-
-    let row;
-    for (const [key, value] of Object.entries(element)) {
-      if (Array.isArray(value) && value !== null) {
-        objectDiv.appendChild(this.generateArray(key, value));
-      }
-      if (this.isObject(value) && value !== null) {
-        objectDiv.appendChild(this.generateObject(key, value));
-      } else {
-        row = this.generateLabeledInput({
-          label: `${key}: `,
-          elementId: `sm-${key}-${this.elementCounter}`,
-          inputType: 'text',
-          value: value,
-          classes: {
-            wrapper: [],
-            inner: [],
-          },
-        });
-        objectDiv.appendChild(row);
-      }
-    }
-    return objectDiv;
-  }
-
-  /**
-   * Renders a specific include file into the dom.
-   * @param {object} file The file reference to render.
-   * @param {Element} domTarget the spot in the dom to render the include.
-   */
-  renderInclude(file, domTarget) {
-    console.log('Render Include File');
-    if (!this.isset(domTarget)) {
-      domTarget = this.dom;
-    }
-    this.elementCounter++;
-    const newInclude = this.generateLabeledInput({
-      label: 'Include_File: ',
-      elementId: `sm-include-${this.elementCounter}`,
-      inputType: 'text',
-      value: file.include_file,
-      classes: {
-        wrapper: [],
-        inner: [],
-      },
-      events: {
-        'blur': (event) => {
-          file.include_file = event.target.value;
-        },
-      },
-    });
-
-    domTarget.appendChild(newInclude);
-  }
-
-  /**
-   * Renders a specific macro into the dom.
-   * @param {object} macro The macro to render.
-   * @param {Element} domTarget the spot in the dom to render the macro.
-   */
-  renderMarco(macro, domTarget) {
-    console.log('Render Marco');
-    if (!this.isset(domTarget)) {
-      domTarget = this.dom;
-    }
-
-    // TODO: Work out a responable way to handle these. Free Text?
-    if (this.isEmptyObject(macro)) {
-      alert('Sorry adding macros is not yet supported.');
-      return;
-    }
-
-    const newMacro = this.generateObject('Macro', macro);
-    domTarget.appendChild(newMacro);
-  }
-
-  /**
-   * Renders a specific option into the dom.
-   * @param {object} option The option to render.
-   * @param {Element} domTarget the spot in the dom to render the macro.
-   */
-  renderOption(option, domTarget) {
-    console.log('Render Option');
-    if (!this.isset(domTarget)) {
-      domTarget = this.dom;
-    }
-  }
-
-  /**
-   * Render a plugin element.
-   * @param {object} plugin a plugin element for rendering.
-   * @param {Element} domTarget the spot in the dom to render the plugin.
-   */
-  renderPlugin(plugin, domTarget) {
-    console.log('Render Plugin');
-    if (!this.isset(domTarget)) {
-      domTarget = this.dom;
-    }
-    this.elementCounter++;
-    const newPlugin = this.generateLabeledInput({
-      label: 'Plugin: ',
-      elementId: `sm-plugin-${this.elementCounter}`,
-      inputType: 'text',
-      value: plugin.plugin,
-      classes: {
-        wrapper: [],
-        inner: [],
-      },
-      events: {
-        'blur': (event) => {
-          plugin.plugin = event.target.value;
-        },
-      },
-    });
-
-    domTarget.appendChild(newPlugin);
-  }
-
-  /**
-   * Generage a button to add a new section.
-   * @param {object} settings button settings.
-   * @return {Element} returns the new dom element.
-   */
-  generateSectionAddButton(settings) {
-    const buttonWrapper = document.createElement('div');
-    const button = document.createElement('button');
-    const label = this.generateWrappedText(
-        settings.label,
-        'span',
-        {class: 'glyphicon glyphicon-plus-sign'},
-    );
-
-    button.setAttribute('type', 'button');
-    button.setAttribute('class', 'btn btn-default btn-sm');
-
-    button.appendChild(label);
-    buttonWrapper.appendChild(button);
-
-    if (!this.isEmptyObject(settings.clickHandler)) {
-      button.addEventListener('click', settings.clickHandler);
-    }
-
-    return buttonWrapper;
-  }
-
-  /**
-   * Renders the current data into the dom, replacing anything already there.
-   */
-  renderAll() {
-    // Wipe existing elements.
-    this.dom.innerHTML = '';
-    this.elementCounter = 0;
-
-    for (const plugin of this.recipe.plugins) {
-      this.renderPlugin(plugin);
-    }
-
-    this.dom.appendChild(this.generateSectionAddButton({
-      label: 'Add Plugin',
-      clickHandler: () => {
-        this.addPlugin();
-      },
-    }));
-
-    for (const file of this.recipe.include_files) {
-      this.renderInclude(file);
-    }
-
-    this.dom.appendChild(this.generateSectionAddButton({
-      label: 'Add Include',
-      clickHandler: () => {
-        this.addIncludeFile();
-      },
-    }));
-
-    for (const macro of this.recipe.macros) {
-      this.renderMacro(macro);
-    }
-
-    this.dom.appendChild(this.generateSectionAddButton({
-      label: 'Add Macro',
-      clickHandler: () => {
-        this.addMacro();
-      },
-    }));
-
-    for (const opt of this.recipe.options) {
-      this.renderOption(opt);
-    }
-
-    this.dom.appendChild(this.generateSectionAddButton({label: 'Add Option'}));
-
-    for (const obj of this.recipe.objects) {
-      this.renderObjectTemplate(obj);
-    }
-
-    this.dom.appendChild(this.generateSectionAddButton({label: 'Add Object'}));
   }
 
   // =================== General JS Helpers ======================
