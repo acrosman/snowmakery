@@ -53,10 +53,9 @@ function editorInit(data, editorId, jsonId) {
     no_additional_properties: true,
     input_width: '100px',
     object_layout: 'grid',
-    startval: data.recipe,
   };
 
-  const editor = new SnowfakeryEditor(editorId, 'New Recipe', null, editorOptions);
+  const editor = new SnowfakeryEditor(editorId, 'New Recipe', data.recipe, editorOptions);
 
   document.editor = editor;
 }

@@ -150,6 +150,7 @@ class SnowfakeryEditor { // eslint-disable-line no-unused-vars
 
     const editor = new JSONEditor(document.getElementById(domTargetId), {
       schema: docSchema,
+      startval: this.recipe,
       ...this.config});
 
     // Hook up the submit button to log to the console
