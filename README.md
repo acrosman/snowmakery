@@ -4,14 +4,69 @@
 
 Snowfakery does not require Salesforce at all, it's a totally free-standing data generator capable to produce large amounts of carefully shaped data quickly. Snowmakery a free-standing Electron app that is simple meant to generate files for Snowfakery.
 
+# Table Of Contents
+- [Running](#running)
+  - [Setup](#setup)
+  - [NPM](#npm)
+  - [Electron](#about-electron)
+- [Contribute](#contribute)
+- [LICENSE](#license)
+
 ## Running
 
 Currently this project is in the very initial stages of development and is not fully functional – please feel free to contribute if you think it would be useful. It does not currently have an app builder setup (although that may change).
 
 ### Setup
-1. Clone this repo, or your own fork.
-2. Run `npm i` from the project root.
+1. Fork the repository by using the button provided on top of the Github repository
+2. Clone the repo by using the following command in command prompt/terminal 
+```
+git clone https://github.com/acrosman/snowmakery.git
+```
+3. Initialize npm by using the follwoing command and keep pressing enter 
+```
+npm init
+```
+4. Run this command from the project root.
+```
+npm i
+```
 
-Once NPM has installed all the required packages run `npm start` to load the project.  There is a simple sample Snowfakery recipe in the sample_data directory.
+### NPM
+Once NPM has installed all the required packages,load the project.  There is a simple sample Snowfakery recipe in the sample_data directory.
+You can load and have a look at the project simply by typing the given command!
+```
+npm start
+```
 
-Pull requests and other contributions welcome.
+### About Electron
+Electron is an open source library developed by GitHub for building cross-platform desktop applications with HTML, CSS, and JavaScript. Electron accomplishes this by combining Chromium and Node.js into a single runtime and apps can be packaged for Mac, Windows, and Linux.
+
+Find out more at https://www.electronjs.org/docs
+
+## Contribute
+After taking a look at the code and the project, you are welcome to make a new Pull Requests or generate an issue in case of any new ideas, bugs or code contribution that you want and is relevant to the project. Just save the file and type the following commands stepwise
+
+### Creating a PR
+
+1. Create a branch
+```
+git branch new-branch
+```
+2.Checkout new branch:
+```
+git checkout new-branch
+```
+3.Add and commit your changes to the new branch
+```
+git add .
+git commit -m "changes"
+```
+4. Push these changes 
+
+```git push origin new-branch```
+
+5.Go to your forked repository and press the “New pull request” button.
+
+## Licence
+[MIT](./LICENSE)
+
