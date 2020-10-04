@@ -6,7 +6,7 @@ Snowfakery does not require Salesforce at all, it's a totally free-standing data
 
 ## Running
 
-Currently this project is in the very initial stages of development and is not fully functional – please feel free to contribute if you think it would be useful. It does not currently have an app-builder setup (although that may change).
+Currently this project is in the very initial stages of development and is not fully functional – please feel free to contribute if you think it would be useful. It does not currently have an app builder setup (although that may change).
 
 ### Setup
 1. Clone this repo, or your own fork.
