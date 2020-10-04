@@ -1,6 +1,6 @@
 # Snowmakery - Recipe Editor for Snowfakery
 
-[Snowfakery](https://github.com/SFDO-Tooling/Snowfakery) is a tool for generatoring relational data sets. It was created by the Salesforce.org team as [a partial response to a need for better test data](https://www.attain.com/blog/salesforce-open-source-commons) for Salesforce projects. Snowfakery is great, but creating recipe files is a bit hard when you are first learning. This project is meant to help bridge that gap, while experts will probably want to handcraft the files [until better tools come around](https://github.com/SFDO-Community-Sprints/DataGenerationToolkit), this will hopefully help people understand the options as they are getting started.
+[Snowfakery](https://github.com/SFDO-Tooling/Snowfakery) is a tool for generating relational datasets. It was created by the Salesforce.org team as [a partial response to a need for better test data](https://www.attain.com/blog/salesforce-open-source-commons) for Salesforce projects. Snowfakery is great, but creating recipe files is a bit hard when you are first learning. This project is meant to help bridge that gap, while experts will probably want to handcraft the files [until better tools come around](https://github.com/SFDO-Community-Sprints/DataGenerationToolkit), this will hopefully help people understand the options as they are getting started.
 
 Snowfakery does not require Salesforce at all, it's a totally free-standing data generator capable to produce large amounts of carefully shaped data quickly. Snowmakery a free-standing Electron app that is simple meant to generate files for Snowfakery.
 
@@ -67,6 +67,8 @@ git commit -m "changes"
 
 5.Go to your forked repository and press the “New pull request” button.
 
+Once NPM has installed all the required packages, run `npm start` to load the project.  There is a simple sample Snowfakery recipe in the sample_data directory.
+Pull requests and other contributions are welcome.
+
 ## Licence
 [MIT](./LICENSE)
-
