@@ -7,3 +7,27 @@ If you write code the addresses an open issue, please make a reference to the is
 I have setup ESLint on this project to largely follow the Google standard. I'm not a fan on debating standards but I love having them, so I picked a popular one and I'm sticking it as fairly carefully. Try to make sure your code passes linting before you open your pull request. All the tools you need should be installed by npm when you setup the code base, and any good editor will have support for helping you find and fix errors. If you don't know how to do that, mention that in your comment, along with your editor and OS, and I'll try to find you directions. I'm hoping to setup CI to do at least a linting test on PRs soon.
 
 I want to give contributors as much credit as reasonably possible, so I may provide you feedback on your pull request instead of just merging and fixing the issues myself. That's meant to be helpful, but if it gets frustrating please let me know and I'll try to find another way to move your contributions forward.
+
+## Creating a PR
+
+1. Create a branch
+```
+git branch new-branch
+```
+2.Checkout new branch:
+```
+git checkout new-branch
+```
+3.Add and commit your changes to the new branch
+```
+git add .
+git commit -m "changes"
+```
+4. Push these changes
+
+```git push origin new-branch```
+
+5.Go to your forked repository and press the “New pull request” button.
+
+Once NPM has installed all the required packages, run `npm start` to load the project.  There is a simple sample Snowfakery recipe in the sample_data directory.
+Pull requests and other contributions are welcome.
