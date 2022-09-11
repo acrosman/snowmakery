@@ -22,7 +22,7 @@
     "@json-editor/json-editor": "github:json-editor/json-editor",
     "bootstrap": "^4.5.2",
     "bootswatch": "^4.5.2",
-    "electron": "^11.5.0",
+    "electron": "^15.5.5",
     "jquery": "^3.5.1",
     "jquery.json-viewer": "^1.4.0",
     "json-formatter-js": "^2.3.4",
